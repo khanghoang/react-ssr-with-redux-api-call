@@ -6,8 +6,7 @@ import { Provider } from 'react-redux';
 
 global.fetch = fetch;
 
-import { store, getInitialProps } from '../client';
-import FooRawComponent from '../client/component';
+import { getInitialProps, FooComponent, makeStore } from '../client';
 
 const app = express();
 const port = 3000;
@@ -47,11 +46,12 @@ const waitUtilDone = store => {
 }
 
 app.get('/', async (_, res) => {
+  const store = makeStore({});
   getInitialProps().forEach(store.dispatch);
   await waitUtilDone(store);
   const str = ReactDOMServer.renderToString(
     <Provider store={store}>
-      <FooRawComponent />
+      <FooComponent />
     </Provider>
   );
   return res.send(str);

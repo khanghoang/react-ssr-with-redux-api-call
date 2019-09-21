@@ -26,6 +26,8 @@ export default () => {
   );
 };
 
+export const FooComponent = Foo;
+
 export const getInitialProps = () => {
   const { actionCreator } = todoAPI;
   return [
