@@ -26,7 +26,7 @@ export default () => {
   );
 };
 
-export const FooComponent = Foo;
+const FooComponent = Foo;
 
 FooComponent.getInitialProps = async () => {
   const { actionCreator } = todoAPI;
@@ -34,3 +34,5 @@ FooComponent.getInitialProps = async () => {
     actionCreator()
   ]
 };
+
+export { FooComponent };

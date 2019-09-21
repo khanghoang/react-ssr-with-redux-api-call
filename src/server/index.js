@@ -4,6 +4,8 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Provider } from 'react-redux';
 
+import  { HTML } from './html';
+
 global.fetch = fetch;
 
 import { FooComponent, makeStore } from '../client';
@@ -45,14 +47,17 @@ const waitUtilDone = store => {
   });
 }
 
-app.get('/', async (_, res) => {
+app.get('/', async (req, res) => {
   const store = makeStore({});
-  await FooComponent.getInitialProps(req).forEach(store.dispatch);
+  const initRequests = await FooComponent.getInitialProps(req);
+  initRequests.forEach(store.dispatch);
   await waitUtilDone(store);
   const str = ReactDOMServer.renderToString(
-    <Provider store={store}>
-      <FooComponent />
-    </Provider>
+    <HTML>
+      <Provider store={store}>
+        <FooComponent />
+      </Provider>
+    </HTML>
   );
   return res.send(str);
 });
