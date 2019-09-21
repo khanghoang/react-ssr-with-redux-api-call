@@ -7,7 +7,7 @@ export const HTML = ({ children }) => {
         </head>
             <body>
                 {children}
-                <script src="dist/bundle.js"></script>
+                <script src="http://localhost:9000/dist/bundle.js"></script>
             </body>
     </html>
   );
