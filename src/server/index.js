@@ -25,11 +25,7 @@ const sleep = time => {
     }, time);
   });
 };
-/**
- * Wait until all of the requests are done
- *
- * @returns Promise<boolean>
- */
+
 app.get("/", async (req, res) => {
   try {
     const bundle = await fetch("http://localhost:9000/dist/bundle.js").then(
@@ -55,20 +51,22 @@ app.get("/", async (req, res) => {
     vm.run(bundle);
 
     // getting those stuffs from the bundle
-    const { FooComponent, makeStore, waitUtilDone } = window.Foo;
+    const { FooComponent, makeStore, waitUtilDone, HTML } = window.Foo;
     React = window.Foo.React;
     ReactDOMServer = window.Foo.ReactDOMServer;
     Provider = window.Foo.Provider;
 
     const store = makeStore({});
     const initRequests = await FooComponent.getInitialProps(req);
-    initRequests.forEach(store.dispatch);
+    initRequests.forEach(req => store.dispatch(req));
     await waitUtilDone(store);
 
     const htmlTags = ReactDOMServer.renderToString(
-      <Provider store={store}>
-        <FooComponent />
-      </Provider>
+      <HTML initialValues={JSON.stringify(store.getState())}>
+        <Provider store={store}>
+          <FooComponent />
+        </Provider>
+      </HTML>
     );
 
     return res.send(htmlTags);

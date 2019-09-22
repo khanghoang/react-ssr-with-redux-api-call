@@ -1,5 +1,5 @@
 import React from "react";
-import { compose } from "recompose";
+import { compose, lifecycle } from "recompose";
 import { connect } from "react-redux";
 import { makeFetchAction } from "redux-api-call";
 
@@ -20,5 +20,11 @@ export default compose(
       };
     },
     dispatch => ({ dispatch })
-  )
+  ),
+  lifecycle({
+    componentDidMount() {
+      const { actionCreator } = todoAPI;
+      this.props.dispatch(actionCreator());
+    }
+  })
 )(Component);

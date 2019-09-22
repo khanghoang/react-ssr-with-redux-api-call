@@ -9,6 +9,7 @@ module.exports = {
     library: 'Foo',
     libraryTarget: 'window'
   },
+  devtool: 'eval-source-map',
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
     compress: true,
