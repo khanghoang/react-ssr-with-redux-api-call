@@ -1,10 +1,10 @@
-import fetch from 'node-fetch';
-import express from 'express';
-import { NodeVM } from 'vm2';
-import jsdom from 'jsdom';
+import fetch from "node-fetch";
+import express from "express";
+import { NodeVM } from "vm2";
+import jsdom from "jsdom";
 
 // we cannot import those React package here on the server side because
-// only one instance of React can exist at runtime, thanks for React's 
+// only one instance of React can exist at runtime, thanks for React's
 // Hooks
 let React;
 let ReactDOMServer;
@@ -18,8 +18,8 @@ const port = 3000;
  *
  * @returns Promise<void>
  */
-const sleep = (time) => {
-  return new Promise((resolve) => {
+const sleep = time => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve();
     }, time);
@@ -31,10 +31,13 @@ const sleep = (time) => {
  *
  * @returns Promise<boolean>
  */
-app.get('/', async (req, res) => {
+app.get("/", async (req, res) => {
   try {
-    const bundle = await fetch('http://localhost:9000/dist/bundle.js')
-      .then(res => { return res.text(); });
+    const bundle = await fetch("http://localhost:9000/dist/bundle.js").then(
+      res => {
+        return res.text();
+      }
+    );
     const { JSDOM } = jsdom;
     const { window } = new JSDOM(`<!DOCTYPE html>`);
     const { document } = window;
@@ -68,7 +71,7 @@ app.get('/', async (req, res) => {
     );
 
     return res.send(htmlTags);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 });
