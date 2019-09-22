@@ -9,4 +9,5 @@
 ### Run the project
 * Install dependencies by `npm install`
 * Start dev server by `npm run dev`
+* Start webpack with `npm run webpack`
 * Go to `http://localhost:3000`

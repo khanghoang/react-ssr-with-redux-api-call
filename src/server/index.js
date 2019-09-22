@@ -1,14 +1,14 @@
 import fetch from 'node-fetch';
 import express from 'express';
-import React from 'react';
-import ReactDOMServer from 'react-dom/server';
-import { Provider } from 'react-redux';
+import { NodeVM } from 'vm2';
+import jsdom from 'jsdom';
 
-import  { HTML } from './html';
-
-global.fetch = fetch;
-
-import { FooComponent, makeStore } from '../client';
+// we cannot import those React package here on the server side because
+// only one instance of React can exist at runtime, thanks for React's 
+// Hooks
+let React;
+let ReactDOMServer;
+let Provider;
 
 const app = express();
 const port = 3000;
@@ -31,35 +31,46 @@ const sleep = (time) => {
  *
  * @returns Promise<boolean>
  */
-const waitUtilDone = store => {
-  return new Promise((resolve) => {
-    const unsubscribe = store.subscribe(() => {
-      const state = store.getState();
-      const keys = Object.keys(state.api_calls);
-      const firstPendingRequestIdx = keys.findIndex((k) => {
-        return !state.api_calls[k].data;
-      })
-      if (firstPendingRequestIdx === -1) {
-        unsubscribe();
-        resolve();
+app.get('/', async (req, res) => {
+  try {
+    const bundle = await fetch('http://localhost:9000/dist/bundle.js')
+      .then(res => { return res.text(); });
+    const { JSDOM } = jsdom;
+    const { window } = new JSDOM(`<!DOCTYPE html>`);
+    const { document } = window;
+    const self = window;
+
+    const vm = new NodeVM({
+      sandbox: {
+        window: window,
+        document: window.document,
+        self: window,
+        fetch: fetch
       }
     });
-  });
-}
 
-app.get('/', async (req, res) => {
-  const store = makeStore({});
-  const initRequests = await FooComponent.getInitialProps(req);
-  initRequests.forEach(store.dispatch);
-  await waitUtilDone(store);
-  const str = ReactDOMServer.renderToString(
-    <HTML>
+    vm.run(bundle);
+
+    const { FooComponent, makeStore, waitUtilDone } = window.Foo;
+    React = window.Foo.React;
+    ReactDOMServer = window.Foo.ReactDOMServer;
+    Provider = window.Foo.Provider;
+
+    const store = makeStore({});
+    const initRequests = await FooComponent.getInitialProps(req);
+    initRequests.forEach(store.dispatch);
+    await waitUtilDone(store);
+
+    const htmlTags = ReactDOMServer.renderToString(
       <Provider store={store}>
         <FooComponent />
       </Provider>
-    </HTML>
-  );
-  return res.send(str);
+    );
+
+    return res.send(htmlTags);
+  } catch(err) {
+    console.log(err);
+  }
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
