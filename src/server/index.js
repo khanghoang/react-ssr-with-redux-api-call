@@ -3,15 +3,15 @@ import express from "express";
 import { NodeVM } from "vm2";
 import jsdom from "jsdom";
 
-// we cannot import those React package here on the server side because
+const app = express();
+const port = 3000;
+
+// we cannot import those React packages here on the server side because
 // only one instance of React can exist at runtime, thanks for React's
 // Hooks
 let React;
 let ReactDOMServer;
 let Provider;
-
-const app = express();
-const port = 3000;
 
 /**
  * Zzzzzzzz
@@ -25,7 +25,6 @@ const sleep = time => {
     }, time);
   });
 };
-
 /**
  * Wait until all of the requests are done
  *
@@ -52,8 +51,10 @@ app.get("/", async (req, res) => {
       }
     });
 
+    // execute the bundle
     vm.run(bundle);
 
+    // getting those stuffs from the bundle
     const { FooComponent, makeStore, waitUtilDone } = window.Foo;
     React = window.Foo.React;
     ReactDOMServer = window.Foo.ReactDOMServer;
