@@ -11,3 +11,6 @@
 * Start dev server by `npm run dev`
 * Start webpack with `npm run webpack`
 * Go to `http://localhost:3000`
+
+### Read more
+* `https://odino.org/eval-no-more-understanding-vm-vm2-nodejs/`
